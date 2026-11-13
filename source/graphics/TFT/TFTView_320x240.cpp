@@ -144,6 +144,89 @@ static void kbdSlideAnimCB(void *var, int32_t v)
     lv_obj_set_y((lv_obj_t *)var, v);
 }
 
+// Keyboard maps: LVGL's built-in maps are ASCII only, these add a Russian layout and a language key.
+#define KB_BTN(width) (LV_BUTTONMATRIX_CTRL_POPOVER | (width))
+#define KB_CTRL(value) static_cast<lv_buttonmatrix_ctrl_t>(value)
+
+static constexpr lv_buttonmatrix_ctrl_t kbFlags2 = KB_CTRL(LV_KEYBOARD_CTRL_BUTTON_FLAGS | 2);
+static constexpr lv_buttonmatrix_ctrl_t kbFlags5 = KB_CTRL(LV_KEYBOARD_CTRL_BUTTON_FLAGS | 5);
+static constexpr lv_buttonmatrix_ctrl_t kbFlags6 = KB_CTRL(LV_KEYBOARD_CTRL_BUTTON_FLAGS | 6);
+static constexpr lv_buttonmatrix_ctrl_t kbLetter1 = KB_CTRL(KB_BTN(1));
+static constexpr lv_buttonmatrix_ctrl_t kbLetter3 = KB_CTRL(KB_BTN(3));
+static constexpr lv_buttonmatrix_ctrl_t kbLetter4 = KB_CTRL(KB_BTN(4));
+static constexpr lv_buttonmatrix_ctrl_t kbChecked1 = KB_CTRL(LV_BUTTONMATRIX_CTRL_CHECKED | KB_BTN(1));
+static constexpr lv_buttonmatrix_ctrl_t kbChecked2 = KB_CTRL(LV_BUTTONMATRIX_CTRL_CHECKED | 2);
+static constexpr lv_buttonmatrix_ctrl_t kbChecked7 = KB_CTRL(LV_BUTTONMATRIX_CTRL_CHECKED | 7);
+static constexpr lv_buttonmatrix_ctrl_t kbSpace = KB_CTRL(6);
+#undef KB_BTN
+#undef KB_CTRL
+
+static const char *const kb_map_en_lc[] = {
+    "1#", "q", "w", "e", "r", "t", "y", "u", "i", "o", "p", LV_SYMBOL_BACKSPACE, "\n",
+    "ABC", "a", "s", "d", "f", "g", "h", "j", "k", "l", LV_SYMBOL_NEW_LINE, "\n",
+    "_", "-", "z", "x", "c", "v", "b", "n", "m", ".", ",", ":", "\n",
+    "РУ", LV_SYMBOL_LEFT, " ", LV_SYMBOL_RIGHT, LV_SYMBOL_OK, ""};
+
+static const char *const kb_map_en_uc[] = {
+    "1#", "Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P", LV_SYMBOL_BACKSPACE, "\n",
+    "abc", "A", "S", "D", "F", "G", "H", "J", "K", "L", LV_SYMBOL_NEW_LINE, "\n",
+    "_", "-", "Z", "X", "C", "V", "B", "N", "M", ".", ",", ":", "\n",
+    "РУ", LV_SYMBOL_LEFT, " ", LV_SYMBOL_RIGHT, LV_SYMBOL_OK, ""};
+
+static const lv_buttonmatrix_ctrl_t kb_ctrl_en[] = {
+    kbFlags5, kbLetter4, kbLetter4, kbLetter4, kbLetter4, kbLetter4, kbLetter4, kbLetter4, kbLetter4, kbLetter4,
+    kbLetter4, kbChecked7,
+    kbFlags6, kbLetter3, kbLetter3, kbLetter3, kbLetter3, kbLetter3, kbLetter3, kbLetter3, kbLetter3, kbLetter3,
+    kbChecked7,
+    kbChecked1, kbChecked1, kbLetter1, kbLetter1, kbLetter1, kbLetter1, kbLetter1, kbLetter1, kbLetter1, kbChecked1,
+    kbChecked1, kbChecked1,
+    kbFlags2, kbChecked2, kbSpace, kbChecked2, kbFlags2};
+
+static const char *const kb_map_ru_lc[] = {
+    "й", "ц", "у", "к", "е", "н", "г", "ш", "щ", "з", "х", "ъ", LV_SYMBOL_BACKSPACE, "\n",
+    "ф", "ы", "в", "а", "п", "р", "о", "л", "д", "ж", "э", "1#", "\n",
+    "АБВ", "я", "ч", "с", "м", "и", "т", "ь", "б", "ю", "ё", LV_SYMBOL_NEW_LINE, "\n",
+    "EN", LV_SYMBOL_LEFT, " ", LV_SYMBOL_RIGHT, LV_SYMBOL_OK, ""};
+
+static const char *const kb_map_ru_uc[] = {
+    "Й", "Ц", "У", "К", "Е", "Н", "Г", "Ш", "Щ", "З", "Х", "Ъ", LV_SYMBOL_BACKSPACE, "\n",
+    "Ф", "Ы", "В", "А", "П", "Р", "О", "Л", "Д", "Ж", "Э", "1#", "\n",
+    "абв", "Я", "Ч", "С", "М", "И", "Т", "Ь", "Б", "Ю", "Ё", LV_SYMBOL_NEW_LINE, "\n",
+    "EN", LV_SYMBOL_LEFT, " ", LV_SYMBOL_RIGHT, LV_SYMBOL_OK, ""};
+
+static const lv_buttonmatrix_ctrl_t kb_ctrl_ru[] = {
+    kbLetter4, kbLetter4, kbLetter4, kbLetter4, kbLetter4, kbLetter4, kbLetter4, kbLetter4, kbLetter4, kbLetter4,
+    kbLetter4, kbLetter4, kbChecked7,
+    kbLetter4, kbLetter4, kbLetter4, kbLetter4, kbLetter4, kbLetter4, kbLetter4, kbLetter4, kbLetter4, kbLetter4,
+    kbLetter4, kbFlags5,
+    kbFlags5, kbLetter4, kbLetter4, kbLetter4, kbLetter4, kbLetter4, kbLetter4, kbLetter4, kbLetter4, kbLetter4,
+    kbLetter4, kbChecked7,
+    kbFlags2, kbChecked2, kbSpace, kbChecked2, kbFlags2};
+
+static_assert(sizeof(kb_ctrl_en) / sizeof(kb_ctrl_en[0]) == 40, "unexpected EN keyboard control map size");
+static_assert(sizeof(kb_ctrl_ru) / sizeof(kb_ctrl_ru[0]) == 42, "unexpected RU keyboard control map size");
+
+// Use the generated font for Cyrillic and the built-in font for LV_SYMBOL glyphs.
+static lv_font_t *keyboardFont(void)
+{
+    static lv_font_t font;
+    static bool initialized = false;
+    if (!initialized) {
+        font = ui_font_montserrat_16;
+        font.fallback = &lv_font_montserrat_16;
+        initialized = true;
+    }
+    return &font;
+}
+
+static void applyKeyboardLayout(lv_obj_t *kb, bool ru)
+{
+    lv_keyboard_set_map(kb, LV_KEYBOARD_MODE_TEXT_LOWER, ru ? kb_map_ru_lc : kb_map_en_lc,
+                        ru ? kb_ctrl_ru : kb_ctrl_en);
+    lv_keyboard_set_map(kb, LV_KEYBOARD_MODE_TEXT_UPPER, ru ? kb_map_ru_uc : kb_map_en_uc,
+                        ru ? kb_ctrl_ru : kb_ctrl_en);
+}
+
 #if LV_USE_GESTURE_RECOGNITION
 static bool mapDragged = false; // suppresses the node click at the end of a drag
 #endif
@@ -257,9 +340,7 @@ bool TFTView_320x240::setupUIConfig(const meshtastic_DeviceUIConfig &uiconfig)
 
     // set language
     setLanguage(db.uiConfig.language);
-
-    // TODO: set virtual keyboard according language
-    //  setKeyboard(db.uiConfig.language);
+    setKeyboard(db.uiConfig.language);
 
     // set theme
     setTheme(db.uiConfig.theme);
@@ -644,6 +725,8 @@ void TFTView_320x240::apply_hotfix(void)
     }
 
     lv_obj_move_foreground(objects.keyboard);
+    lv_obj_set_style_text_font(objects.keyboard, keyboardFont(),
+                               (lv_style_selector_t)LV_PART_MAIN | (lv_style_selector_t)LV_STATE_DEFAULT);
 #if LV_USE_GESTURE_RECOGNITION
     // let map gestures started on a node image reach ui_screen_event_cb on the main screen
     lv_obj_add_flag(objects.map_panel, LV_OBJ_FLAG_EVENT_BUBBLE);
@@ -840,8 +923,9 @@ void TFTView_320x240::ui_events_init(void)
     lv_obj_add_event_cb(objects.msg_restore_panel, this->ui_event_MsgRestoreButton, LV_EVENT_CLICKED, NULL);
     lv_obj_add_event_cb(objects.alert_panel, this->ui_event_AlertButton, LV_EVENT_CLICKED, NULL);
 
-    // keyboard
-    lv_obj_add_event_cb(objects.keyboard, ui_event_Keyboard, LV_EVENT_CLICKED, this);
+    // keyboard: wrap LVGL's default handler so the layout keys do not insert text
+    lv_obj_remove_event_cb(objects.keyboard, lv_keyboard_def_event_cb);
+    lv_obj_add_event_cb(objects.keyboard, ui_event_Keyboard, LV_EVENT_VALUE_CHANGED, this);
     lv_obj_add_event_cb(objects.keyboard_button_0, ui_event_KeyboardButton, LV_EVENT_CLICKED, (void *)0);
     lv_obj_add_event_cb(objects.keyboard_button_1, ui_event_KeyboardButton, LV_EVENT_CLICKED, (void *)1);
     lv_obj_add_event_cb(objects.keyboard_button_2, ui_event_KeyboardButton, LV_EVENT_CLICKED, (void *)2);
@@ -1747,41 +1831,39 @@ void TFTView_320x240::ui_event_KeyboardButton(lv_event_t *e)
  */
 void TFTView_320x240::ui_event_Keyboard(lv_event_t *e)
 {
-    lv_event_code_t event_code = lv_event_get_code(e);
-    if (event_code == LV_EVENT_CLICKED) {
-        lv_obj_t *kb = lv_event_get_target_obj(e);
-        uint32_t btn_id = lv_keyboard_get_selected_button(kb);
+    lv_obj_t *kb = lv_event_get_current_target_obj(e);
+    uint32_t btn_id = lv_keyboard_get_selected_button(kb);
+    const char *txt = lv_keyboard_get_button_text(kb, btn_id);
+    if (!txt)
+        return;
 
-        switch (btn_id) {
-        case 22: { // enter (filtered out by one-liner text input area, so we replace it)
-            // lv_obj_t *ta = lv_keyboard_get_textarea(kb);
-            // lv_textarea_add_char(ta, ' ');
-            // lv_textarea_add_char(ta, CR_REPLACEMENT);
-            break;
+    // Layout keys are handled here so LVGL's default handler never inserts their text.
+    if (strcmp(txt, "РУ") == 0 || strcmp(txt, "EN") == 0) {
+        THIS->setKeyboardRussian(strcmp(txt, "РУ") == 0);
+        return;
+    }
+    if (strcmp(txt, "АБВ") == 0) {
+        lv_keyboard_set_mode(kb, LV_KEYBOARD_MODE_TEXT_UPPER);
+        return;
+    }
+    if (strcmp(txt, "абв") == 0) {
+        lv_keyboard_set_mode(kb, LV_KEYBOARD_MODE_TEXT_LOWER);
+        return;
+    }
+    if (strcmp(txt, LV_SYMBOL_KEYBOARD) == 0) {
+        lv_keyboard_set_popovers(kb, !lv_keyboard_get_popovers(kb));
+        return;
+    }
+
+    lv_keyboard_def_event_cb(e);
+
+    if (strcmp(txt, LV_SYMBOL_OK) == 0) { // checkmark
+        if (THIS->activePanel == objects.messages_panel) {
+            THIS->hideKeyboard(objects.messages_panel);
+        } else {
+            lv_obj_add_flag(kb, LV_OBJ_FLAG_HIDDEN);
         }
-        case 35: { // keyboard
-            lv_keyboard_set_popovers(objects.keyboard, !lv_keyboard_get_popovers(kb));
-            break;
-        }
-        case 36: { // left
-            break;
-        }
-        case 38: { // right
-            break;
-        }
-        case 39: { // checkmark
-            if (THIS->activePanel == objects.messages_panel) {
-                THIS->hideKeyboard(objects.messages_panel);
-            } else {
-                lv_obj_add_flag(kb, LV_OBJ_FLAG_HIDDEN);
-            }
-            lv_group_focus_obj(objects.message_input_area);
-            break;
-        }
-        default:
-            break;
-            // const char *txt = lv_keyboard_get_button_text(kb, btn_id);
-        }
+        lv_group_focus_obj(objects.message_input_area);
     }
 }
 
@@ -4149,6 +4231,23 @@ void TFTView_320x240::setLanguage(meshtastic_Language lang)
     lv_dropdown_get_selected_str(objects.settings_language_dropdown, buf1, sizeof(buf1));
     lv_snprintf(buf2, sizeof(buf2), _("Language: %s"), buf1);
     lv_label_set_text(objects.basic_settings_language_label, buf2);
+}
+
+/**
+ * @brief Set the virtual keyboard layout from the UI language
+ */
+void TFTView_320x240::setKeyboard(meshtastic_Language lang)
+{
+    setKeyboardRussian(lang == meshtastic_Language_RUSSIAN);
+}
+
+/**
+ * @brief Switch the virtual keyboard between English and Russian
+ */
+void TFTView_320x240::setKeyboardRussian(bool ru)
+{
+    ILOG_DEBUG("keyboard layout: %s", ru ? "RU" : "EN");
+    applyKeyboardLayout(objects.keyboard, ru);
 }
 
 /**
